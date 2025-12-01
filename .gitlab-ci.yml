@@ -1,0 +1,63 @@
+# -------------------------------------------------------
+# Pipeline básico de CI para WorkaTrack (backend Flask)
+# -------------------------------------------------------
+# Objetivo de esta primera versión:
+# - Usar una imagen oficial de Python.
+# - Instalar dependencias desde requirements.txt.
+# - Comprobar que el código compila y que create_app() funciona.
+#
+# Más adelante añadiremos:
+# - Tests (pytest).
+# - Build de imagen Docker.
+# - Push al registry y despliegue a K8s.
+# -------------------------------------------------------
+
+# Imagen base que usarán los jobs del pipeline
+image: python:3.12-slim
+
+# Variables comunes a todos los jobs
+variables:
+  # Carpeta donde pip guardará la caché (para acelerar instalaciones)
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+# Definimos las fases (stages) del pipeline
+stages:
+  - test
+
+# Configuración de caché compartida entre jobs (aquí solo hay uno, pero ya queda montado)
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  paths:
+    - .cache/pip
+
+# Comandos que se ejecutan ANTES de cada job (instalación de deps, etc.)
+before_script:
+  # Mostrar versión de Python (útil para depuración en CI)
+  - python --version
+  # Actualizar pip
+  - pip install --upgrade pip
+  # Instalar las dependencias del proyecto
+  - pip install -r requirements.txt
+
+# -------------------------------------------------------
+# Job: test_backend
+# -------------------------------------------------------
+# Comprueba que:
+# - El código de app/ se puede compilar.
+# - La factoría create_app() no rompe al importarla.
+# -------------------------------------------------------
+test_backend:
+  stage: test
+  script:
+    # 1) Compilar todos los módulos Python (detecta errores de sintaxis)
+    - python -m compileall app
+
+    # 2) Intentar crear la app Flask.
+    #    Esto importa app/__init__.py, carga Config, inicializa extensiones...
+    #    No debería necesitar conectarse a la BD en este punto, solo asegurar que todo arranca.
+    - python -c "from app import create_app; app = create_app(); print('create_app OK')"
+
+  # (Opcional, pero útil) Etiquetas del runner si las usáis en Irontec
+  # tags:
+  #   - kubernetes
+  #   - python

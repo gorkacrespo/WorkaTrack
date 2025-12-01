@@ -1,0 +1,12 @@
+# Entorno virtual
+venv/
+
+# Cachés de Python
+__pycache__/
+*.pyc
+
+# Base de datos local (solo para desarrollo)
+workatrack.db
+
+# Archivos de sistema
+.DS_Store

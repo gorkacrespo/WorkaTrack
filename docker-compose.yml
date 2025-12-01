@@ -1,0 +1,49 @@
+services:
+  # -------------------------------------------------------
+  # Base de datos PostgreSQL
+  # -------------------------------------------------------
+  db:
+    image: postgres:16
+    container_name: workatrack-db
+    environment:
+      # Nombre de la base de datos por defecto
+      POSTGRES_DB: workatrack
+      # Usuario y contraseña que usaremos desde la app
+      POSTGRES_USER: workatrack
+      POSTGRES_PASSWORD: workatrack
+    volumes:
+      # Volumen para que los datos NO se pierdan al parar contenedores
+      - db_data:/var/lib/postgresql/data
+    ports:
+      # Exponemos el puerto 5432 por si quieres conectarte con DBeaver, psql, etc.
+      - "5432:5432"
+
+  # -------------------------------------------------------
+  # API de WorkaTrack (Flask)
+  # -------------------------------------------------------
+  web:
+    build: .
+    container_name: workatrack-web
+    environment:
+      # Estas dos ya las usábamos también en el Dockerfile, pero aquí
+      # las dejamos claras para futuras automatizaciones (CI/CD, etc.).
+      FLASK_APP: "app:create_app"
+      FLASK_RUN_HOST: 0.0.0.0
+
+      # Cadena de conexión que usará SQLAlchemy dentro del contenedor.
+      # Ojo: el host es "db" porque es el nombre del servicio de arriba.
+      DATABASE_URL: "postgresql+psycopg2://workatrack:workatrack@db:5432/workatrack"
+
+    depends_on:
+      # Así nos aseguramos de que la BD está levantada antes de la app
+      - db
+
+    ports:
+      # Puerto de la API expuesta en tu máquina
+      - "5000:5000"
+
+# ---------------------------------------------------------
+# Volúmenes persistentes
+# ---------------------------------------------------------
+volumes:
+  db_data:
