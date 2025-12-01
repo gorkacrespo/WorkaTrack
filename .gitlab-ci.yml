@@ -31,57 +31,39 @@ cache:
     - .cache/pip
 
 # -------------------------------------------------------
-# before_script: se ejecuta antes de cada job que use la
-# imagen por defecto (python:3.12-slim)
+# before_script global (solo se aplica al job test)
 # -------------------------------------------------------
 before_script:
-  # Mostrar versión de Python (útil para depuración en CI)
   - python --version
-  # Actualizar pip
   - pip install --upgrade pip
-  # Instalar las dependencias del proyecto
   - pip install -r requirements.txt
 
 # -------------------------------------------------------
-# Job: test_backend  (STAGE: test)
-# -------------------------------------------------------
-# Comprueba que:
-# - El código de app/ se puede compilar.
-# - La factoría create_app() funciona al importarla.
+# Job: test_backend (STAGE: test)
 # -------------------------------------------------------
 test_backend:
   stage: test
   script:
-    # 1) Compilar todos los módulos Python (detecta errores de sintaxis)
     - python -m compileall app
-    # 2) Intentar crear la app Flask
     - python -c "from app import create_app; app = create_app(); print('create_app OK')"
 
-  # Aquí podríamos añadir tags específicas del runner si hiciera falta
-  # tags:
-  #   - kubernetes
-  #   - python
-
 # -------------------------------------------------------
-# Job: build_image  (STAGE: build)
-# -------------------------------------------------------
-# Construye la imagen Docker de WorkaTrack y la sube al
-# container registry de GitLab usando Kaniko.
+# Job: build_image (STAGE: build)
 # -------------------------------------------------------
 build_image:
   stage: build
 
-  # Usamos Kaniko en lugar de docker-in-docker
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  #Desactivamos el before_scripts global (no queremos python/pip aquí)
+
+  # Este job NO debe ejecutar el before_script global
   before_script: []
 
   script:
-    # Crear configuración de Docker para autenticarse contra el registry de GitLab
+    # Crear configuración del registry
     - mkdir -p /kaniko/.docker
-    - >
+    - |
       cat <<EOF > /kaniko/.docker/config.json
       {
         "auths": {
@@ -93,16 +75,13 @@ build_image:
       }
       EOF
 
-    # Ejecutar Kaniko: construye y push a dos tags:
-    # - ${CI_COMMIT_REF_SLUG} (por rama)
-    # - latest
-    - >
-      /kaniko/executor
-      --context "${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
-      --destination "${CI_REGISTRY_IMAGE}:latest"
+    # Construir y subir imagen al registry
+    - |
+      /kaniko/executor \
+        --context "${CI_PROJECT_DIR}" \
+        --dockerfile "${CI_PROJECT_DIR}/Dockerfile" \
+        --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}" \
+        --destination "${CI_REGISTRY_IMAGE}:latest"
 
-  # Solo construimos imagen cuando los cambios van a master
   only:
     - master
