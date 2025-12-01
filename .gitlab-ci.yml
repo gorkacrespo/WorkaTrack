@@ -75,6 +75,8 @@ build_image:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
+  #Desactivamos el before_scripts global (no queremos python/pip aquí)
+  before_script: []
 
   script:
     # Crear configuración de Docker para autenticarse contra el registry de GitLab
