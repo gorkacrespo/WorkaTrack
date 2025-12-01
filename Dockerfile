@@ -31,8 +31,6 @@ COPY app /app/app
 COPY config.py /app/config.py
 # Copiar las migraciones de Alembic (Flask-Migrate)
 COPY migrations /app/migrations
-# README y demás (opcional, pero no molesta)
-COPY ./workatrack /app/workatrack
 
 # ---------------------------------------------------------
 # Variables de entorno para Flask dentro del contenedor
