@@ -1,18 +1,17 @@
 # -------------------------------------------------------
-# Pipeline básico de CI para WorkaTrack (backend Flask)
+# Pipeline CI para WorkaTrack (backend Flask)
 # -------------------------------------------------------
-# Objetivo de esta primera versión:
-# - Usar una imagen oficial de Python.
-# - Instalar dependencias desde requirements.txt.
-# - Comprobar que el código compila y que create_app() funciona.
+# Objetivos:
+# 1) Stage "test": comprobar que el código compila y que create_app() funciona.
+# 2) Stage "build": construir y subir la imagen Docker al registry de GitLab
+#    usando Kaniko.
 #
-# Más adelante añadiremos:
-# - Tests (pytest).
-# - Build de imagen Docker.
-# - Push al registry y despliegue a K8s.
+# Más adelante podremos añadir:
+# - Tests con pytest.
+# - Despliegue automático a Kubernetes.
 # -------------------------------------------------------
 
-# Imagen base que usarán los jobs del pipeline
+# Imagen base por defecto para los jobs que no la sobrescriban
 image: python:3.12-slim
 
 # Variables comunes a todos los jobs
@@ -23,14 +22,18 @@ variables:
 # Definimos las fases (stages) del pipeline
 stages:
   - test
+  - build
 
-# Configuración de caché compartida entre jobs (aquí solo hay uno, pero ya queda montado)
+# Caché compartida entre jobs
 cache:
   key: "${CI_COMMIT_REF_SLUG}"
   paths:
     - .cache/pip
 
-# Comandos que se ejecutan ANTES de cada job (instalación de deps, etc.)
+# -------------------------------------------------------
+# before_script: se ejecuta antes de cada job que use la
+# imagen por defecto (python:3.12-slim)
+# -------------------------------------------------------
 before_script:
   # Mostrar versión de Python (útil para depuración en CI)
   - python --version
@@ -40,24 +43,64 @@ before_script:
   - pip install -r requirements.txt
 
 # -------------------------------------------------------
-# Job: test_backend
+# Job: test_backend  (STAGE: test)
 # -------------------------------------------------------
 # Comprueba que:
 # - El código de app/ se puede compilar.
-# - La factoría create_app() no rompe al importarla.
+# - La factoría create_app() funciona al importarla.
 # -------------------------------------------------------
 test_backend:
   stage: test
   script:
     # 1) Compilar todos los módulos Python (detecta errores de sintaxis)
     - python -m compileall app
-
-    # 2) Intentar crear la app Flask.
-    #    Esto importa app/__init__.py, carga Config, inicializa extensiones...
-    #    No debería necesitar conectarse a la BD en este punto, solo asegurar que todo arranca.
+    # 2) Intentar crear la app Flask
     - python -c "from app import create_app; app = create_app(); print('create_app OK')"
 
-  # (Opcional, pero útil) Etiquetas del runner si las usáis en Irontec
+  # Aquí podríamos añadir tags específicas del runner si hiciera falta
   # tags:
   #   - kubernetes
   #   - python
+
+# -------------------------------------------------------
+# Job: build_image  (STAGE: build)
+# -------------------------------------------------------
+# Construye la imagen Docker de WorkaTrack y la sube al
+# container registry de GitLab usando Kaniko.
+# -------------------------------------------------------
+build_image:
+  stage: build
+
+  # Usamos Kaniko en lugar de docker-in-docker
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+
+  script:
+    # Crear configuración de Docker para autenticarse contra el registry de GitLab
+    - mkdir -p /kaniko/.docker
+    - >
+      cat <<EOF > /kaniko/.docker/config.json
+      {
+        "auths": {
+          "${CI_REGISTRY}": {
+            "username": "${CI_REGISTRY_USER}",
+            "password": "${CI_REGISTRY_PASSWORD}"
+          }
+        }
+      }
+      EOF
+
+    # Ejecutar Kaniko: construye y push a dos tags:
+    # - ${CI_COMMIT_REF_SLUG} (por rama)
+    # - latest
+    - >
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}"
+      --destination "${CI_REGISTRY_IMAGE}:latest"
+
+  # Solo construimos imagen cuando los cambios van a master
+  only:
+    - master
