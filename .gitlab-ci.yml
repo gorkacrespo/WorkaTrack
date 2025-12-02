@@ -58,7 +58,7 @@ build_image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
 
-  # Este job NO debe ejecutar el before_script global
+  # Este job NO debe ejecutar el before_script global)
   before_script: []
 
   script:
@@ -91,6 +91,9 @@ build_image:
 deploy_to_k8s:
   stage: deploy
   image: bitnami/kubectl:latest
+
+  #Este job no debe ejecutar el before_script global (no hay python aqui)
+  before_script: []
 
   script:
     - echo "$KUBECONFIG_WORKATRACK" > kubeconfig
