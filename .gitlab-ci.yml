@@ -23,6 +23,7 @@ variables:
 stages:
   - test
   - build
+  - deploy
 
 # Caché compartida entre jobs
 cache:
@@ -82,6 +83,19 @@ build_image:
         --dockerfile "${CI_PROJECT_DIR}/Dockerfile" \
         --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}" \
         --destination "${CI_REGISTRY_IMAGE}:latest"
+
+# -------------------------------------------------------
+# Job: deploy_to_k8s (STAGE: deploy)
+# Aplica los manifiestos de k8s/ usando el kubeconfig del SA
+# -------------------------------------------------------
+deploy_to_k8s:
+  stage: deploy
+  image: bitnami/kubectl:latest
+
+  script:
+    - echo "$KUBECONFIG_WORKATRACK" > kubeconfig
+    - kubectl --kubeconfig=kubeconfig apply -f k8s/
+    - kubectl --kubeconfig=kubeconfig rollout status deployment/workatrack-api
 
   only:
     - master
