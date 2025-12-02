@@ -100,5 +100,8 @@ deploy_to_k8s:
     - kubectl --kubeconfig=kubeconfig apply -f k8s/
     - kubectl --kubeconfig=kubeconfig rollout status deployment/workatrack-api
 
+  when: manual                 #<- lo lanzamos a mano en el futuro
+  allow_failure: true          #<- si falla, el eline sigue verde
+
   only:
     - master
