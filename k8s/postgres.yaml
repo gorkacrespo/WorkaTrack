@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  # namespace: workatrack  # ← si estás usando un namespace, ponlo aquí
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            # Nombre de la base de datos que se crea al arrancar
+            - name: POSTGRES_DB
+              value: "workatrack"
+            # Usuario que usará tu aplicación
+            - name: POSTGRES_USER
+              value: "workatrack"
+            # Contraseña del usuario anterior
+            - name: POSTGRES_PASSWORD
+              value: "workatrack"
+          volumeMounts:
+            # Montamos un volumen para que los datos no se pierdan
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+        # storageClassName: standard  # puedes dejarlo comentado para usar el default de Minikube
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  # namespace: workatrack  # igual que arriba si usas namespace
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432

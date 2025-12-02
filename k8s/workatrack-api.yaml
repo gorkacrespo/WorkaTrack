@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workatrack-api
+  labels:
+    app: workatrack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workatrack
+  template:
+    metadata:
+      labels:
+        app: workatrack
+    spec:
+      containers:
+        - name: workatrack
+          image: workatrack:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5000
+              protocol: TCP
+          env:
+            - name: FLASK_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: workatrack-config
+                  key: FLASK_ENV
+
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: workatrack-secret
+                  key: DATABASE_URL
+
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: workatrack-secret
+                  key: SECRET_KEY
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workatrack-service
+spec:
+  type: ClusterIP
+  selector:
+    app: workatrack
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
