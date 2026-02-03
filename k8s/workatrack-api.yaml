@@ -14,6 +14,52 @@ spec:
       labels:
         app: workatrack
     spec:
+      initContainers:
+        - name: db-migrate
+          image: workatrack:latest
+          imagePullPolicy: Never
+          command:
+            - sh
+            - -lc
+            - |
+              python - <<'PY'
+              import socket, time
+              host = "postgres"
+              port = 5432
+              for _ in range(60):
+                  try:
+                      s = socket.create_connection((host, port), timeout=2)
+                      s.close()
+                      print("Postgres OK")
+                      break
+                  except Exception:
+                      time.sleep(2)
+              else:
+                  raise SystemExit("Postgres NOT reachable")
+              PY
+              flask db upgrade
+          env:
+            - name: FLASK_APP
+              value: "app:create_app"
+
+            - name: FLASK_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: workatrack-config
+                  key: FLASK_ENV
+
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: workatrack-secret
+                  key: DATABASE_URL
+
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: workatrack-secret
+                  key: SECRET_KEY
+
       containers:
         - name: workatrack
           image: workatrack:latest
@@ -22,6 +68,9 @@ spec:
             - containerPort: 5000
               protocol: TCP
           env:
+            - name: FLASK_APP
+              value: "app:create_app"
+
             - name: FLASK_ENV
               valueFrom:
                 configMapKeyRef:
