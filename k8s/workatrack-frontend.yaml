@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workatrack-frontend
+  labels:
+    app: workatrack-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workatrack-frontend
+  template:
+    metadata:
+      labels:
+        app: workatrack-frontend
+    spec:
+      containers:
+        - name: workatrack-frontend
+          image: workatrack-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+              protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workatrack-frontend-service
+  labels:
+    app: workatrack-frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: workatrack-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80

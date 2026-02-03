@@ -10,3 +10,4 @@ workatrack.db
 
 # Archivos de sistema
 .DS_Store
+kubeconfig-workatrack
