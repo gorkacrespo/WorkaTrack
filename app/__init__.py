@@ -9,12 +9,11 @@ Aquí definimos la función create_app, que:
 """
 
 from flask import Flask
+from flask_cors import CORS
 from flask_migrate import Migrate
 from config import Config          # Clase de configuración (config.py)
 from app.models import db          # Objeto SQLAlchemy definido en models.py
 from app.routes import api_bp
-
-
 
 
 def create_app(config_class: type[Config] = Config) -> Flask:
@@ -30,20 +29,23 @@ def create_app(config_class: type[Config] = Config) -> Flask:
     """
     app = Flask(__name__)
 
+    # Habilitar CORS para permitir peticiones desde el frontend en localhost:5173
+    CORS(app)
+
     # Cargamos la configuración desde la clase Config
     app.config.from_object(config_class)
 
     # Inicializamos la extensión de base de datos con esta app
     db.init_app(app)
-    migrate = Migrate(app,db)    #Inicializar migraciones
-    app.register_blueprint(api_bp)   #Registrar el blueprint de la API
-    # Importamos modelos (por si alguna herramienta de migraciones los necesita)
-    # La importación es local para evitar problemas de importaciones circulares.
-    from app import models  # noqa: F401  (se importa solo por los efectos secundarios)
+    migrate = Migrate(app, db)    # Inicializar migraciones
 
-    # ------------------------------------------------------------------
-    # Ruta mínima de prueba (la quitaremos cuando tengamos vistas reales)
-    # ------------------------------------------------------------------
+    # Registrar el blueprint de la API
+    app.register_blueprint(api_bp)
+
+    # Importamos modelos (por si alguna herramienta de migraciones los necesita)
+    from app import models  # noqa: F401
+
+    # Ruta mínima de prueba
     @app.route("/")
     def index():
         return "WorkaTrack está funcionando"

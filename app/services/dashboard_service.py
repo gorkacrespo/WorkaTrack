@@ -60,7 +60,7 @@ def build_dashboard_for_user(user_id: int) -> Dict[str, Any]:
     # (pendiente, en_progreso, etc.)
     tareas_activas_query = (
         Task.query
-        .filter(Task.user_id == user.id, Task.estado != "terminada")
+        .filter(Task.user_id == user.id, Task.estado != "finalizada")
         .order_by(Task.id.asc())
     )
 
