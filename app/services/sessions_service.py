@@ -59,10 +59,10 @@ def create_session(
     ws = WorkSession(
         tarea_id=tarea_id,
         fecha=fecha_to_store,
-        minutos=0,
+        minutos=minutos if minutos > 0 else 0,
         tipo=tipo,
         notas=notas,
-        finalizada=False
+        finalizada=True if minutos > 0 else False
     )
 
     db.session.add(ws)
