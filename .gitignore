@@ -5,9 +5,35 @@ venv/
 __pycache__/
 *.pyc
 
-# Base de datos local (solo para desarrollo)
+# Bases de datos locales
+*.db
 workatrack.db
+
+# Credenciales y configuración sensible
+.env
+.env.*
+kubeconfig*
+*.kubeconfig
+
+# Volúmenes / datos persistentes de Docker
+db_data/
+ollama_data/
+postgres_data/
+
+# Dependencias frontend
+node_modules/
+frontworkatrack/node_modules/
+frontworkatrack/dist/
 
 # Archivos de sistema
 .DS_Store
-kubeconfig-workatrack
+
+# Backups y temporales de edición
+*.bak
+*.bak_*
+*.save
+*.pre_sync_rollback
+*.log
+
+# Logs de arranque
+arranque.log

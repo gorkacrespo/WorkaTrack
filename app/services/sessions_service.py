@@ -2,7 +2,7 @@
 Servicios relacionados con sesiones de trabajo (WorkSession).
 """
 
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from werkzeug.security import check_password_hash
 
@@ -28,6 +28,8 @@ def create_session(
     minutos: int,
     tipo: Optional[str] = None,
     notas: Optional[str] = None,
+    started_at: Optional[datetime] = None,
+    ended_at: Optional[datetime] = None,
 ) -> WorkSession:
     """
     Crea una nueva sesión de trabajo para una tarea.
@@ -50,7 +52,6 @@ def create_session(
     else:
         fecha_to_store = task.fecha_plan_inicio or date.today()
 
-
     if task.fecha_plan_inicio and fecha_to_store < task.fecha_plan_inicio:
         raise ValueError(
             "No se puede crear una sesión antes de la fecha de inicio de la tarea"
@@ -62,7 +63,9 @@ def create_session(
         minutos=minutos if minutos > 0 else 0,
         tipo=tipo,
         notas=notas,
-        finalizada=True if minutos > 0 else False
+        finalizada=True if minutos > 0 else False,
+        started_at=started_at,
+        ended_at=ended_at,
     )
 
     db.session.add(ws)
@@ -78,6 +81,8 @@ def update_session(
     minutos: int,
     tipo: Optional[str] = None,
     notas: Optional[str] = None,
+    started_at: Optional[datetime] = None,
+    ended_at: Optional[datetime] = None,
 ) -> WorkSession:
     """
     Actualiza una sesión existente.
@@ -97,6 +102,9 @@ def update_session(
     ws.fecha = fecha or ws.fecha
     ws.tipo = tipo
     ws.notas = notas
+
+    ws.started_at = started_at
+    ws.ended_at = ended_at
 
     if minutos > 0:
         ws.minutos = minutos

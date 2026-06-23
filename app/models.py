@@ -264,10 +264,80 @@ class WorkSession(db.Model):
 
     finalizada = db.Column(db.Boolean, nullable=False, default=False)
 
+    # Timestamps reales (para analítica: mañana/tarde/noche, horas pico, etc.)
+    # NO sustituyen a 'minutos' ni cambian la lógica actual.
+    started_at = db.Column(db.DateTime(timezone=True), nullable=True)
+    ended_at = db.Column(db.DateTime(timezone=True), nullable=True)
+
+
     tarea = db.relationship("Task", back_populates="work_sessions")
 
     def __repr__(self) -> str:
         return (
             f"<WorkSession id={self.id} tarea_id={self.tarea_id} "
             f"fecha={self.fecha} minutos={self.minutos}>"
+        )
+
+
+class QaChunkSummary(db.Model):
+    """
+    Cache de resúmenes por chunk temporal (semanal) para Q&A.
+    Permite hacer "full scan" sin re-procesar todo en cada pregunta.
+    """
+
+    __tablename__ = "qa_chunk_summaries"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    project_id = db.Column(
+        db.Integer,
+        db.ForeignKey("projects.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    # Semana (chunk)
+    week_start = db.Column(db.Date, nullable=False, index=True)
+    week_end = db.Column(db.Date, nullable=False, index=True)
+
+    # "all" | "project" | "tasks" | "sessions" | "milestones"
+    scope = db.Column(db.String(32), nullable=False, default="all", index=True)
+
+    # Para invalidar caches si cambiamos el prompt/algoritmo.
+    algo_version = db.Column(db.Integer, nullable=False, default=1, index=True)
+
+    # Resumen ya reducido (texto) + metadatos (JSON string)
+    summary = db.Column(db.Text, nullable=False)
+    meta_json = db.Column(db.Text, nullable=True)
+
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "project_id",
+            "user_id",
+            "scope",
+            "algo_version",
+            "week_start",
+            name="uq_qa_chunk_summary",
+        ),
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<QaChunkSummary id={self.id} project_id={self.project_id} "
+            f"scope={self.scope} week_start={self.week_start} v={self.algo_version}>"
         )

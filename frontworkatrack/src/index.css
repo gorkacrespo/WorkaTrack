@@ -1,0 +1,456 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: #646cff;
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
+/* ==== Estilos para la pantalla de Login/Registro ==== */
+
+.auth-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f5f5f7;
+}
+
+.auth-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  width: 380px;
+}
+
+.auth-card h1 {
+  margin-top: 0;
+}
+
+.auth-subtitle {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+}
+
+.auth-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-toggle button {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.auth-toggle button.active {
+  background: #111827;
+  color: white;
+}
+
+.auth-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.auth-form label {
+  margin-bottom: 0.25rem;
+}
+
+.auth-form input {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+}
+
+.auth-submit {
+  width: 100%;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+/* ==== Layout página de proyectos ==== */
+
+.projects-layout {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Columna izquierda: lista */
+.projects-list-panel {
+  width: 36%;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.projects-subtitle {
+  margin-top: 0.25rem;
+  margin-bottom: 1.5rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Tarjeta de proyecto */
+.project-card {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.project-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.project-card-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.project-created {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+/* Barra de progreso */
+.project-progress {
+  margin-bottom: 0.75rem;
+}
+
+.project-progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.project-progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: #111827;
+}
+
+.project-progress-text {
+  font-size: 0.8rem;
+  color: #4b5563;
+}
+
+/* Enlace a detalle */
+.project-link {
+  font-size: 0.85rem;
+  color: #2563eb;
+}
+
+/* Columna derecha: calendario */
+.projects-calendar-panel {
+  flex: 1;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+
+  position: relative;
+  height: 100%;
+  overflow:hidden;
+}
+.projects-calendar-panel .year-calendar {
+  margin-top: 50px;          /* 🔴 BAJA EL CALENDARIO */
+}
+.projects-calendar-panel h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.calendar-placeholder {
+  border: 1px dashed #d1d5db;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+/* ==== Calendario anual de proyectos ==== */
+
+.year-calendar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.year-calendar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.year-calendar-header select {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+}
+
+/* Rejilla de 12 meses */
+.year-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.year-calendar-month {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.year-calendar-month-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+/* Rejilla de días dentro de cada mes */
+.year-calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.2rem;
+}
+
+.year-calendar-day {
+  min-height: 24px;
+  border-radius: 0.25rem;
+  font-size: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.year-calendar-day-number {
+  line-height: 1;
+}
+
+.year-calendar-day-dots {
+  display: flex;
+  gap: 2px;
+  margin-top: 1px;
+}
+
+.year-calendar-day-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+/* ==== Header de la lista de proyectos ==== */
+.projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Botón para crear proyecto */
+.create-project-btn {
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: none;
+  background: #111827;
+  color: #ffffff;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.create-project-btn:hover {
+  opacity: 0.9;
+}
+/* Footer de la tarjeta (izquierda: punto + link, derecha: color + borrar) */
+.project-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+/* IZQUIERDA: punto de color + enlace */
+.project-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Puntito que muestra el color actual del proyecto */
+.project-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  display: inline-block;
+}
+
+/* DERECHA: color picker + botón eliminar */
+.project-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Etiqueta del color picker */
+.project-color-picker-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Input tipo color minimalista */
+.project-color-input {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  height: 18px;
+  width: 18px;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+
+/* El círculo real del color picker */
+.project-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.project-color-input::-webkit-color-swatch {
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+}
+/* Título del proyecto + punto de color en la misma línea */
+.project-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+/* Caja resumen (overlay) */
+.calendar-summary-box {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  padding: 0.75rem;
+
+  width: 200px;
+  min-height: 50px;
+
+  z-index: 10;
+
+  /* MISMO LOOK QUE UN MES */
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  padding: 0.75rem;
+
+  /* Tamaño aproximado de un mes */
+  width: 220px;
+  min-height: 160px;
+
+  z-index: 10;
+}
