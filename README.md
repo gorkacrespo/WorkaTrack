@@ -66,7 +66,10 @@ En arranques posteriores, si se conservan los volúmenes Docker (`ollama_data`, 
 
 ## Detener la demo
 
+Desde la carpeta `WorkaTrack/` (la raíz del repositorio clonado):
+
 ```bash
+cd WorkaTrack
 docker compose -f docker-compose.portable.yml down
 ```
 
